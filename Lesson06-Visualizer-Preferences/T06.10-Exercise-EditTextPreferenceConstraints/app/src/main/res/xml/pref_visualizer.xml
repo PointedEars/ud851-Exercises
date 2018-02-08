@@ -23,9 +23,11 @@
         android:summaryOn="@string/pref_show_true"
         android:title="@string/pref_show_treble_label" />
 
-    <EditTextPreference
+    <android.example.com.visualizerpreferences.EditTextPreference
         android:defaultValue="@string/pref_size_default"
+        android:inputType="numberDecimal"
         android:key="@string/pref_size_key"
+        android:summary="%s"
         android:title="@string/pref_size_label" />
 
     <ListPreference
@@ -33,6 +35,7 @@
         android:entries="@array/pref_color_option_labels"
         android:entryValues="@array/pref_color_option_values"
         android:key="@string/pref_color_key"
+        android:summary="%s"
         android:title="@string/pref_color_label" />
 
 </PreferenceScreen>

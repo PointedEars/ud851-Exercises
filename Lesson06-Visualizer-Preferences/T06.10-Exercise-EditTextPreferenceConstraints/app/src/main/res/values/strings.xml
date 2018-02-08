@@ -36,6 +36,7 @@
     <!-- Default for size preference -->
     <string name="pref_size_default" translatable="false">1</string>
 
+    <string name="pref_size_summary_format">%1.1f</string>
 
     <!-- Label for the color preference -->
     <string name="pref_color_label">Shape Color</string>

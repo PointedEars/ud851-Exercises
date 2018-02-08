@@ -28,6 +28,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -36,6 +37,7 @@ import android.widget.Toast;
 public class VisualizerActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int MY_PERMISSION_RECORD_AUDIO_REQUEST_CODE = 88;
+    private static final String TAG = VisualizerActivity.class.getSimpleName();
     private VisualizerView mVisualizerView;
     private AudioInputReader mAudioInputReader;
 
@@ -70,8 +72,17 @@ public class VisualizerActivity extends AppCompatActivity implements SharedPrefe
     }
 
     private void loadSizeFromSharedPreferences(SharedPreferences sharedPreferences) {
-        float minSize = Float.parseFloat(sharedPreferences.getString(getString(R.string.pref_size_key),
-                getString(R.string.pref_size_default)));
+        String minSizeKey = getString(R.string.pref_size_key);
+        String defaultMinSize = getResources().getString(R.string.pref_size_default);
+        float minSize = Float.parseFloat(defaultMinSize);
+        String minSizeString = sharedPreferences.getString(minSizeKey, defaultMinSize);
+        try {
+            minSize = Float.parseFloat(minSizeString);
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Invalid value for preference '" + minSizeKey + "': " + minSizeString
+                    + ". Using default: " + defaultMinSize
+                    + "\n" + e.toString());
+        }
         mVisualizerView.setMinSizeScale(minSize);
     }
 

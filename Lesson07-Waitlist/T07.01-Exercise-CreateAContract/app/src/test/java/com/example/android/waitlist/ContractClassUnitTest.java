@@ -8,6 +8,9 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -41,6 +44,12 @@ public class ContractClassUnitTest {
         assertEquals("Cannot find inner class to complete unit test", 1, innerClasses.length);
         Class entryClass = innerClasses[0];
         Field[] allFields = entryClass.getDeclaredFields();
+
+        System.out.println("Fields:");
+        for (Field field : allFields) {
+            System.out.println(field.getName());
+        }
+
         assertEquals("There should be exactly 4 String members in the inner class", 4, allFields.length);
         for (Field field : allFields) {
             assertTrue("All members in the contract class should be Strings", field.getType()==String.class);
