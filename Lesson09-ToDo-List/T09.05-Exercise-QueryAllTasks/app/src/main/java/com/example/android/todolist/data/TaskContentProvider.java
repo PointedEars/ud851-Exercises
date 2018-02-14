@@ -120,15 +120,29 @@ public class TaskContentProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
 
-        // TODO (1) Get access to underlying database (read-only for query)
+        // DONE (1) Get access to underlying database (read-only for query)
+        final SQLiteDatabase db = mTaskDbHelper.getReadableDatabase();
 
-        // TODO (2) Write URI match code and set a variable to return a Cursor
+        // DONE (2) Write URI match code and set a variable to return a Cursor
+        Cursor cursor;
 
-        // TODO (3) Query for the tasks directory and write a default case
+        int matchId = sUriMatcher.match(uri);
+        switch (matchId) {
+            case TASKS:
+                // DONE (3) Query for the tasks directory and write a default case
+                cursor = db.query(
+                        TaskContract.TaskEntry.TABLE_NAME,
+                        projection, selection, selectionArgs, null, null, sortOrder);
 
-        // TODO (4) Set a notification URI on the Cursor and return that Cursor
+                // DONE (4) Set a notification URI on the Cursor and return that Cursor
+                cursor.setNotificationUri(getContext().getContentResolver(), uri);
+                break;
 
-        throw new UnsupportedOperationException("Not yet implemented");
+            default:
+                throw new UnsupportedOperationException("Unknown URI: " + uri);
+        }
+
+        return cursor;
     }
 
 

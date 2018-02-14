@@ -17,12 +17,15 @@
 package com.example.android.todolist.data;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 // Verify that TaskContentProvider extends from ContentProvider and implements required methods
 public class TaskContentProvider extends ContentProvider {
@@ -35,6 +38,8 @@ public class TaskContentProvider extends ContentProvider {
 
     // CDeclare a static variable for the Uri matcher that you construct
     private static final UriMatcher sUriMatcher = buildUriMatcher();
+
+    private static final String LOG_TAG = TaskContentProvider.class.getSimpleName();
 
     // Define a static buildUriMatcher method that associates URI's with their int match
     /**
@@ -78,16 +83,41 @@ public class TaskContentProvider extends ContentProvider {
 
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
-        // TODO (1) Get access to the task database (to write new data to)
+        Uri returnedUri;
 
-        // TODO (2) Write URI matching code to identify the match for the tasks directory
+        // DONE (1) Get access to the task database (to write new data to)
+        SQLiteDatabase db = mTaskDbHelper.getWritableDatabase();
 
-        // TODO (3) Insert new values into the database
-        // TODO (4) Set the value for the returnedUri and write the default case for unknown URI's
+        // DONE (2) Write URI matching code to identify the match for the tasks directory
+        int matchId = sUriMatcher.match(uri);
+        switch (matchId) {
+            case TASKS:
+                // DONE (3) Insert new values into the database
+                long taskId = db.insert(TaskContract.TaskEntry.TABLE_NAME, null, values);
 
-        // TODO (5) Notify the resolver if the uri has been changed, and return the newly inserted URI
+                // DONE (4) Set the value for the returnedUri and write the default case for unknown URI's
+                returnedUri = uri.buildUpon().appendPath(String.valueOf(taskId)).build();
 
-        throw new UnsupportedOperationException("Not yet implemented");
+                // DONE (5) Notify the resolver if the uri has been changed, and return the newly inserted URI
+                if (taskId != -1)
+                {
+                    try {
+                        ContentResolver contentResolver = getContext().getContentResolver();
+
+                        /* NOTE: DO NOT USE .notify() or .notifyAll() */
+                        if (contentResolver != null) contentResolver.notifyChange(uri, null);
+                    } catch (NullPointerException e) {
+                        Log.d(LOG_TAG, String.valueOf(e));
+                    }
+                }
+
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unsupported URI: " + uri);
+        }
+
+        return returnedUri;
     }
 
 

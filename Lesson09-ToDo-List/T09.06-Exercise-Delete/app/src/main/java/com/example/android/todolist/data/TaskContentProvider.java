@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import static com.example.android.todolist.data.TaskContract.TaskEntry.TABLE_NAME;
 
@@ -39,6 +40,8 @@ public class TaskContentProvider extends ContentProvider {
 
     // CDeclare a static variable for the Uri matcher that you construct
     private static final UriMatcher sUriMatcher = buildUriMatcher();
+
+    private static final String LOG_TAG = TaskContentProvider.class.getSimpleName();
 
     // Define a static buildUriMatcher method that associates URI's with their int match
     /**
@@ -155,15 +158,36 @@ public class TaskContentProvider extends ContentProvider {
     // Implement delete to delete a single row of data
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
+        // DONE (1) Get access to the database and write URI matching code to recognize a single item
+        SQLiteDatabase db = mTaskDbHelper.getWritableDatabase();
 
-        // TODO (1) Get access to the database and write URI matching code to recognize a single item
+        int numRows = -1;
+        switch (sUriMatcher.match(uri)) {
+            case TASK_WITH_ID:
+                // DONE (2) Write the code to delete a single row of data
+                // [Hint] Use selections to delete an item by its row ID
+                String id = uri.getLastPathSegment();
 
-        // TODO (2) Write the code to delete a single row of data
-        // [Hint] Use selections to delete an item by its row ID
+                numRows = db.delete(
+                        TaskContract.TaskEntry.TABLE_NAME,
+                        TaskContract.TaskEntry._ID + " = ?",
+                        new String[] {id});
+                break;
 
-        // TODO (3) Notify the resolver of a change and return the number of items deleted
+            default:
+                throw new UnsupportedOperationException("Unsupported URI: " + uri);
+        }
 
-        throw new UnsupportedOperationException("Not yet implemented");
+        // DONE (3) Notify the resolver of a change and return the number of items deleted
+        if (numRows != -1) {
+            try {
+                getContext().getContentResolver().notifyChange(TaskContract.TaskEntry.CONTENT_URI, null);
+            } catch (NullPointerException e) {
+                Log.e(LOG_TAG, String.valueOf(e));
+            }
+        }
+
+        return numRows;
     }
 
 
